@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Shizuku: quyền gọi API của Shizuku Manager -->
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+    <!-- Rung haptic cho nút bấm và rumble từ game -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Dịch vụ nền giữ tay cầm ảo sống suốt phiên chơi -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Thông báo của Foreground Service trên Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Overlay tay cầm không giành focus (dùng từ MỐC 3; xin sẵn quyền tại đây) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Hai quyền dưới đây là quyền chữ ký hệ thống: app thường không được cấp,
+         khai báo để tương thích luồng cũ và để dumpsys thấy rõ app đã xin những gì. -->
+    <uses-permission android:name="android.permission.DUMP" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+    <application
+        android:allowBackup="true"
+        android:label="FlexPad"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+
+        <!-- Thư viện phụ trợ màn hình gập: không bắt buộc, máy không có vẫn chạy -->
+        <uses-library
+            android:name="androidx.window.extensions"
+            android:required="false" />
+        <uses-library
+            android:name="androidx.window.sidecar"
+            android:required="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Foreground Service giữ phiên tay cầm ảo (nội dung overlay thêm ở MỐC 3) -->
+        <service
+            android:name=".overlay.PadOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Tay cầm ảo cho game ở chế độ Flex Mode: giữ thiết bị đầu vào ảo sống trong suốt phiên chơi" />
+        </service>
+
+        <!-- Provider bắt buộc của Shizuku -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    </application>
+</manifest>
